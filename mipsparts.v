@@ -10,13 +10,13 @@
 
 module forward_unit (input clk,
                      input [4:0] rsD, rtD, rsE, rtE,
-							input regwriteM, regwriteW, /* ??? */
-							input [4:0] writeregM, writeregW,
-							output reg forwardAD,
-							output reg forwardBD,
-							output reg [1:0] forwardAE,
-							output reg [1:0] forwardBE,
-							input [1:0] alusrcAE);
+		     input regwriteM, regwriteW,
+		     input [4:0] writeregM, writeregW,
+		     output reg forwardAD,
+		     output reg forwardBD,
+		     output reg [1:0] forwardAE,
+		     output reg [1:0] forwardBE,
+		     input [1:0] alusrcAE);
 
   always @(posedge clk)
   begin
@@ -44,7 +44,7 @@ endmodule
 
 module hazard_unit (input clk,
                     input [4:0] rtD, rsE, rtE,
-						  input memtoregE, memtoregM, branch,
+		    input memtoregE, memtoregM, branch,
                     output reg stallF, stallD, flushE);
 						  
 	always @(posedge clk)
@@ -52,11 +52,11 @@ module hazard_unit (input clk,
 	  if (memtoregE) begin
 	    if ((rtD == rsE) || (rtD == rtE)) begin 
 		   stallF <= #`mydelay 1'b1;
-			stallD <= #`mydelay 1'b1;
+		   stallD <= #`mydelay 1'b1;
 		 end
 	    else begin 
 		   stallF <= #`mydelay 1'b0;
-			stallD <= #`mydelay 1'b0;
+		   stallD <= #`mydelay 1'b0;
 		 end 
 	  end
 	  else if (branch) begin
@@ -73,69 +73,69 @@ endmodule
 
 module start_fetch(input clk,
                    input reset, stallF,
-						 input [31:0] pcS,
-						 output reg [31:0] pcF);
-						  
-						  
+		   input [31:0] pcS,
+		   output reg [31:0] pcF);
+						  				  
   always @(posedge clk)
   begin
     if(reset) pcF <= #`mydelay 32'b0;
-	 else if (stallF) pcF <= #`mydelay pcF;
-	 else pcF <= #`mydelay pcS;
+    else if (stallF) pcF <= #`mydelay pcF;
+    else pcF <= #`mydelay pcS;
   end
 endmodule
 
 module fetch_decode(input clk,
                     input reset,
                     input stallD, branch,
-						  input [31:0] pcF,
-                    input [31:0] instrF,
-						  output reg [31:0] pcD,
-                    output reg [31:0] instrD);
+		    input [31:0] pcF,
+		    input [31:0] instrF,
+		    output reg [31:0] pcD,
+		    output reg [31:0] instrD);
 						  
 						  
   always @(posedge clk)
   begin
-/*
+    /*
     if(reset || branch) begin
 	   instrD <= 32'b0;
 	   pcD <= 32'b0;
-	 end
-	 */
-	 if (reset) begin
-	   instrD <= #`mydelay 32'b0;
-		pcD <= #`mydelay 32'b0;
-	 end
-	 else if (stallD) begin
-	   instrD <= #`mydelay instrD;
-		pcD <= #`mydelay pcD;
-	 end
-	 else begin
-	   instrD <= #`mydelay instrF;
-		pcD <= #`mydelay pcF;
+    end
+    */
+    if (reset) begin
+        instrD <= #`mydelay 32'b0;
+	pcD <= #`mydelay 32'b0;
+    end
+    else if (stallD) begin
+        instrD <= #`mydelay instrD;
+	pcD <= #`mydelay pcD;
+    end
+    else begin
+        instrD <= #`mydelay instrF;
+	pcD <= #`mydelay pcF;
     end
   end
 
 endmodule
 
 module decode_execute(input clk,
-                    input reset, flushE,
-                    input [31:0] pcD, output reg [31:0] pcE,
-                    input [31:0] immD, output reg [31:0] immE,
-						  input [4:0] rsD, output reg [4:0] rsE,
-						  input [4:0] rtD, output reg [4:0] rtE,
-						  input [4:0] rdD, output reg [4:0] rdE,
-						  input [31:0] rd0D, output reg [31:0] rd0E,
-						  input [31:0] rd1D, output reg [31:0] rd1E,
-						  input regwriteD, output reg regwriteE,
-						  input memtoregD, output reg memtoregE,
-						  input memwriteD, output reg memwriteE,
-						  input branchD, output reg branchE,
-						  input [2:0] aluopD, output reg [2:0] aluopE,
-						  input [1:0] alusrcBD, output reg [1:0] alusrcBE,
-						  input [1:0] alusrcAD, output reg [1:0] alusrcAE,
-						  input [1:0] regdstD, output reg [1:0] regdstE,
-						  input zeroD, output reg zeroE);
+		      input reset, flushE,
+		      input [31:0] pcD, output reg [31:0] pcE,
+		      input [31:0] immD, output reg [31:0] immE,
+		      input [4:0] rsD, output reg [4:0] rsE,
+		      input [4:0] rtD, output reg [4:0] rtE,
+		      input [4:0] rdD, output reg [4:0] rdE,
+		      input [31:0] rd0D, output reg [31:0] rd0E,
+		      input [31:0] rd1D, output reg [31:0] rd1E,
+		      input regwriteD, output reg regwriteE,
+		      input memtoregD, output reg memtoregE,
+		      input memwriteD, output reg memwriteE,
+		      input branchD, output reg branchE,
+		      input [2:0] aluopD, output reg [2:0] aluopE,
+		      input [1:0] alusrcBD, output reg [1:0] alusrcBE,
+		      input [1:0] alusrcAD, output reg [1:0] alusrcAE,
+		      input [1:0] regdstD, output reg [1:0] regdstE,
+		      input zeroD, output reg zeroE);
+	
   always @(posedge clk)
   begin
     if (reset || flushE) begin
@@ -154,10 +154,10 @@ module decode_execute(input clk,
 	   alusrcBE <= 2'b0;
 	   alusrcAE <= 2'b0;
 	   regdstE <= 2'b0;
-		zeroE <= 1'b0;
+	   zeroE <= 1'b0;
 	 end
 	 else begin
-      pcE <= pcD;
+      	   pcE <= pcD;
 	   immE <= immD;
 	   rsE <= rsD;
 	   rtE <= rtD;
@@ -172,32 +172,32 @@ module decode_execute(input clk,
 	   alusrcBE <= alusrcBD;
 	   alusrcAE <= alusrcAD;
 	   regdstE <= regdstD;
-		zeroE <= zeroD;
+	   zeroE <= zeroD;
 	 end
   end
 
 endmodule
 
 module execute_memory(input clk,
-                    input reset,
-                    input [4:0] writeregE, output reg [4:0] writeregM,
-					     input [31:0] writedataE, output reg [31:0] writedataM,
-	 					  input [31:0] aluoutE, output reg [31:0] aluoutM,
-						  input memwriteE, output reg memwriteM,
-						  input memtoregE, output reg memtoregM,
-						  input regwriteE, output reg regwriteM);
+		      input reset,
+		      input [4:0] writeregE, output reg [4:0] writeregM,
+		      input [31:0] writedataE, output reg [31:0] writedataM,
+		      input [31:0] aluoutE, output reg [31:0] aluoutM,
+		      input memwriteE, output reg memwriteM,
+		      input memtoregE, output reg memtoregM,
+		      input regwriteE, output reg regwriteM);
 
   always @(posedge clk)
   begin
     if (reset) begin
-	   writeregM <= 5'b0;
+      writeregM <= 5'b0;
       writedataM <= 32'b0;
       aluoutM <= 32'b0;
       memwriteM <= 1'b0;
       memtoregM <= 1'b0;
       regwriteM <= 1'b0;
-	 end
-	 else begin
+    end
+    else begin
       writeregM <= writeregE;
       writedataM <= writedataE;
       aluoutM <= aluoutE;
@@ -210,28 +210,29 @@ endmodule
 
 
 module memory_wb(input clk,
-               input reset,
-               input regwriteM, output reg regwriteW,
-					input memtoregM, output reg memtoregW,
-					input [31:0] readdataM, output reg [31:0] readdataW,
-					input [31:0] aluoutM, output reg [31:0] aluoutW,
-					input [4:0] writeregM, output reg [4:0] writeregW);
+		 input reset,
+		 input regwriteM, output reg regwriteW,
+		 input memtoregM, output reg memtoregW,
+		 input [31:0] readdataM, output reg [31:0] readdataW,
+		 input [31:0] aluoutM, output reg [31:0] aluoutW,
+		 input [4:0] writeregM, output reg [4:0] writeregW);
+	
   always @(posedge clk)
   begin
     if (reset) begin
       regwriteW <= 1'b0;
-	   memtoregW <= 1'b0;
-	   readdataW <= 32'b0;
-	   aluoutW <= 32'b0;
-	   writeregW <= 5'b0;
-	 end
-	 else begin
+      memtoregW <= 1'b0;
+      readdataW <= 32'b0;
+      aluoutW <= 32'b0;
+      writeregW <= 5'b0;
+    end
+    else begin
       regwriteW <= regwriteM;
-	   memtoregW <= memtoregM;
-	   readdataW <= readdataM;
-	   aluoutW <= aluoutM;
-	   writeregW <= writeregM;
-	 end
+      memtoregW <= memtoregM;
+      readdataW <= readdataM;
+      aluoutW <= aluoutM;
+      writeregW <= writeregM;
+    end
   end
 endmodule
 
@@ -259,7 +260,7 @@ endmodule
 
 module alu(input [31:0] a, b,
            input [2:0] alucont,
-			  output reg [31:0] result);
+	   output reg [31:0] result);
 
   wire [31:0] b2;
   wire sltu;
@@ -317,7 +318,7 @@ endmodule
 
 
 module shift_left_16(input      [31:0] a,
-		               input         shiftl16,
+		     input         shiftl16,
                      output reg [31:0] y);
 
    always @(*)
@@ -366,8 +367,9 @@ endmodule
 
 module mux3 #(parameter WIDTH = 8)
               (input [WIDTH-1:0] d0, d1, d2,
-				   input [1:0] s,
-					output reg [WIDTH-1:0] y);
+	       input [1:0] s,
+	       output reg [WIDTH-1:0] y);
+	
   always @(*)
     case (s)
       2'b00: #`mydelay y <= d0;
@@ -378,8 +380,8 @@ endmodule
 
 module mux4 #(parameter WIDTH = 8)
               (input [WIDTH-1:0] d0, d1, d2, d3,
-				   input [1:0] s,
-					output reg [WIDTH-1:0] y);
+	       input [1:0] s,
+	       output reg [WIDTH-1:0] y);
 
   always @(*)
     case (s)
