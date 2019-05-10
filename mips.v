@@ -79,7 +79,7 @@ module mips(input         clk, reset,
 		.y        (pcS));
 
   /*****************************************************/
-  /* 0000000000000000000000000000000000000000000000000 */
+  /* Instruction Fetch                                 */
   /*****************************************************/
   start_fetch sf(.clk(clk),
                  .reset(reset), .stallF(stallF),
@@ -89,27 +89,29 @@ module mips(input         clk, reset,
 
   
   /*****************************************************/
-  /* 1111111111111111111111111111111111111111111111111 */
+  /* Fetch - Decode stage                              */
   /*****************************************************/
   fetch_decode fd(.clk(clk), .reset(reset),
                   //.branch(branch),
-						.stallD(stallD),
-                  .instrF(instr), .instrD(instrD),
-						.pcF(pcplusF),	.pcD(pcplusD));
+		  .stallD	(stallD),
+                  .instrF	(instr),
+		  .instrD	(instrD),
+		  .pcF		(pcplusF),
+		  .pcD		(pcplusD));
 
-  controller c(.op			(instrD[31:26]),
+  controller c(.op		(instrD[31:26]),
                .funct		(instrD[5:0]),
-					.jump			(jump),
-					.jumpR		(jumpR),
-					.shift16    (shift16),
-					.regwrite	(regwriteD),
-					.memtoreg	(memtoregD),
-					.memwrite	(memwriteD),
-					.branch		(branchD),
-					.alucontrol	(aluopD),
-					.alusrcB		(alusrcBD),
-					.alusrcA		(alusrcAD),
-					.regdst		(regdstD));
+	       .jump		(jump),
+	       .jumpR		(jumpR),
+	       .shift16    	(shift16),
+	       .regwrite	(regwriteD),
+	       .memtoreg	(memtoregD),
+	       .memwrite	(memwriteD),
+	       .branch		(branchD),
+	       .alucontrol	(aluopD),
+	       .alusrcB		(alusrcBD),
+	       .alusrcA		(alusrcAD),
+	       .regdst		(regdstD));
 
   regfile rf(
     .clk     (clk),
@@ -157,26 +159,26 @@ module mips(input         clk, reset,
 	 
   
   /*****************************************************/
-  /* 2222222222222222222222222222222222222222222222222 */
+  /* Decode - Execution stage                          */
   /*****************************************************/
   decode_execute de(.clk(clk), .flushE(flushE),
-						  .reset(reset),
+		    .reset(reset),
                     .pcD(pcplusD), .pcE(pcplusE),
                     .immD(immD), .immE(immE),
-						  .rsD(instrD[25:21]), .rsE(rsE),
-						  .rtD(instrD[20:16]), .rtE(rtE),
-						  .rdD(instrD[15:11]), .rdE(rdE),
-						  .rd0D(rd0D), .rd0E(rd0E),
-						  .rd1D(rd1D), .rd1E(rd1E),
-						  .regwriteD(regwriteD), .regwriteE(regwriteE),
-						  .memtoregD(memtoregD), .memtoregE(memtoregE),
-						  .memwriteD(memwriteD), .memwriteE(memwriteE),
-						  .branchD(branchD), .branchE(branchE),
-						  .aluopD(aluopD), .aluopE(aluopE),
-						  .alusrcBD(alusrcBD), .alusrcBE(alusrcBE),
-						  .alusrcAD(alusrcAD), .alusrcAE(alusrcAE),
-						  .regdstD(regdstD), .regdstE(regdstE));
-
+		    .rsD(instrD[25:21]), .rsE(rsE),
+		    .rtD(instrD[20:16]), .rtE(rtE),
+		    .rdD(instrD[15:11]), .rdE(rdE),
+		    .rd0D(rd0D), .rd0E(rd0E),
+		    .rd1D(rd1D), .rd1E(rd1E),
+		    .regwriteD(regwriteD), .regwriteE(regwriteE),
+		    .memtoregD(memtoregD), .memtoregE(memtoregE),
+		    .memwriteD(memwriteD), .memwriteE(memwriteE),
+		    .branchD(branchD), .branchE(branchE),
+		    .aluopD(aluopD), .aluopE(aluopE),
+		    .alusrcBD(alusrcBD), .alusrcBE(alusrcBE),
+		    .alusrcAD(alusrcAD), .alusrcAE(alusrcAE),
+		    .regdstD(regdstD), .regdstE(regdstE));
+	
 
   wire [31:0] srca, srcb;
 						
@@ -220,16 +222,17 @@ module mips(input         clk, reset,
   adder pcadd(.a (pcplusE), .b ({immE[29:0], 2'b00}), .y (pcbranch));
 						 
   /*****************************************************/
-  /* 3333333333333333333333333333333333333333333333333 */
+  /* Execution - Memory stage                          */
   /*****************************************************/
   execute_memory em(.clk(clk),
-                    .reset(reset),
-                    .writeregE(writeregE), .writeregM(writeregM),
-					     .writedataE(writedataE), .writedataM(writedataM),
-	 					  .aluoutE(aluoutE), .aluoutM(aluoutM),
-						  .memwriteE(memwriteE), .memwriteM(memwriteM),
-						  .memtoregE(memtoregE), .memtoregM(memtoregM),
-						  .regwriteE(regwriteE), .regwriteM(regwriteM));	
+		    .reset(reset),
+		    .writeregE(writeregE), .writeregM(writeregM),
+		    .writedataE(writedataE), .writedataM(writedataM),
+		    .aluoutE(aluoutE), .aluoutM(aluoutM),
+		    .memwriteE(memwriteE), .memwriteM(memwriteM),
+		    .memtoregE(memtoregE), .memtoregM(memtoregM),
+		    .regwriteE(regwriteE), .regwriteM(regwriteM));
+	
 
   assign memwrite = memwriteM;
   assign memaddr = aluoutM;
@@ -238,15 +241,15 @@ module mips(input         clk, reset,
 
   
   /*****************************************************/
-  /* 4444444444444444444444444444444444444444444444444 */
+  /* Memory - Write Back stage                         */
   /*****************************************************/
   memory_wb mw(.clk(clk),
-               .reset(reset),
-               .regwriteM(regwriteM), .regwriteW(regwriteW),
-					.memtoregM(memtoregM), .memtoregW(memtoregW),
-					.readdataM(readdataM), .readdataW(readdataW),
-					.aluoutM(aluoutM), .aluoutW(aluoutW),
-					.writeregM(writeregM), .writeregW(writeregW));
+	       .reset(reset),
+	       .regwriteM(regwriteM), .regwriteW(regwriteW),
+	       .memtoregM(memtoregM), .memtoregW(memtoregW),
+	       .readdataM(readdataM), .readdataW(readdataW),
+	       .aluoutM(aluoutM), .aluoutW(aluoutW),
+	       .writeregM(writeregM), .writeregW(writeregW));
 
   mux2 #(32) lastmux(
     .d0  (aluoutW),
@@ -256,72 +259,75 @@ module mips(input         clk, reset,
 	 
 endmodule
 
+/******************************************
+ * Decode MIPS Instruction (Machine code)
+ ******************************************/
 module controller(input  [5:0] op, funct,
-						output [2:0] alucontrol,
-						output [1:0] regdst,
-						output [1:0] alusrcA, alusrcB,
-						output       jump, jumpR, regwrite, memtoreg, memwrite, branch, shift16);
+		  output [2:0] alucontrol,
+		  output [1:0] regdst,
+		  output [1:0] alusrcA, alusrcB,
+		  output       jump, jumpR, regwrite, memtoreg, memwrite, branch, shift16);
 
   wire [1:0] aluop;
 
   assign alusrcA = 2'b0;
   
   maindec md(
-    .op       (op),
-    .memtoreg (memtoreg),
-    .memwrite (memwrite),
-    .branch   (branch),
-    .alusrc   (alusrcB),
-    .regdst   (regdst),
-    .regwrite (regwrite),
-    .jump     (jump),
-    .aluop    (aluop),
-	 .shift16  (shift16));
+	  .op       (op),
+	  .memtoreg (memtoreg),
+	  .memwrite (memwrite),
+	  .branch   (branch),
+	  .alusrc   (alusrcB),
+	  .regdst   (regdst),
+	  .regwrite (regwrite),
+	  .jump     (jump),
+	  .aluop    (aluop),
+	  .shift16  (shift16));
 	 
-  aludec ad( 
-    .funct      (funct),
-    .aluop      (aluop), 
-	 .jumpR      (jumpR),
-    .alucontrol (alucontrol));
+  aludec ad(
+	  .funct      (funct),
+	  .aluop      (aluop),
+	  .jumpR      (jumpR),
+	  .alucontrol (alucontrol));
  
 endmodule
 
 module maindec(input  [5:0] op,
                output       memtoreg, memwrite,
                output       branch,
-					output [1:0] alusrc,
-               output [1:0] regdst,
-					output       regwrite, jump, shift16,
-               output [1:0] aluop);
+	       output [1:0] alusrc,
+	       output [1:0] regdst,
+	       output       regwrite, jump, shift16,
+	       output [1:0] aluop);
 
   reg [11:0] controls;
 
   assign {shift16, regwrite, regdst, alusrc, branch,
-			 memwrite, memtoreg, jump, aluop} = controls;
+	  memwrite, memtoreg, jump, aluop} = controls;
 
   always @(*)
     case(op)
-      6'b000000: controls <= #`mydelay 12'b010100000011; // Rtype
-      6'b100011: controls <= #`mydelay 12'b010001001000; // LW
-      6'b101011: controls <= #`mydelay 12'b000001010000; // SW
-      6'b000100: controls <= #`mydelay 12'b000000100001; // BEQ
-		6'b000101: controls <= #`mydelay 12'b000000100001; // BNEZ : JUNYEON
-      6'b001000, 
-      6'b001001: controls <= #`mydelay 12'b010001000000; // ADDI, ADDIU: only difference is exception
-		6'b001010: controls <= #`mydelay 12'b010101000000; // SLTI : JUNYEON
-      6'b001101: controls <= #`mydelay 12'b010001000010; // ORI
-      6'b001111: controls <= #`mydelay 12'b110001000000; // LUI
-      6'b000010: controls <= #`mydelay 12'b000000000100; // J
-		6'b000011: controls <= #`mydelay 12'b011010000100; // JAL
-      default:   controls <= #`mydelay 12'bxxxxxxxxxxxx; // ???
+	    6'b000000: controls <= #`mydelay 12'b010100000011; // Rtype
+	    6'b100011: controls <= #`mydelay 12'b010001001000; // LW
+	    6'b101011: controls <= #`mydelay 12'b000001010000; // SW
+	    6'b000100: controls <= #`mydelay 12'b000000100001; // BEQ
+	    6'b000101: controls <= #`mydelay 12'b000000100001; // BNEZ
+	    6'b001000, 
+	    6'b001001: controls <= #`mydelay 12'b010001000000; // ADDI, ADDIU: only difference is exception
+	    6'b001010: controls <= #`mydelay 12'b010101000000; // SLTI
+	    6'b001101: controls <= #`mydelay 12'b010001000010; // ORI
+	    6'b001111: controls <= #`mydelay 12'b110001000000; // LUI
+	    6'b000010: controls <= #`mydelay 12'b000000000100; // J
+	    6'b000011: controls <= #`mydelay 12'b011010000100; // JAL
+	    default:   controls <= #`mydelay 12'bxxxxxxxxxxxx; // ???
     endcase
 
 endmodule
 
 module aludec(input      [5:0] funct,
-              input      [1:0] aluop,
-				  output     jumpR,
-              output     [2:0] alucontrol);
+	      input      [1:0] aluop,
+	      output     jumpR,
+	      output     [2:0] alucontrol);
 				  
   reg [3:0] controls;
   
@@ -333,16 +339,16 @@ module aludec(input      [5:0] funct,
       2'b01: controls <= #`mydelay 4'b0110;  // sub
       2'b10: controls <= #`mydelay 4'b0001;  // or
       default: case(funct)          // RTYPE
-			 6'b100000,
-          6'b100001: controls <= #`mydelay 4'b0010; // ADD, ADDU: only difference is exception
-          6'b100010,
-          6'b100011: controls <= #`mydelay 4'b0110; // SUB, SUBU: only difference is exception
-          6'b100100: controls <= #`mydelay 4'b0000; // AND
-          6'b100101: controls <= #`mydelay 4'b0001; // OR
-			 6'b001000: controls <= #`mydelay 4'b1000; // JR
-          6'b101010,
-			 6'b101011: controls <= #`mydelay 4'b0111; // SLT, SLTU
-          default:   controls <= #`mydelay 4'b0xxx; // ???
+	      6'b100000,
+	      6'b100001: controls <= #`mydelay 4'b0010; // ADD, ADDU: only difference is exception
+	      6'b100010,
+	      6'b100011: controls <= #`mydelay 4'b0110; // SUB, SUBU: only difference is exception
+	      6'b100100: controls <= #`mydelay 4'b0000; // AND
+	      6'b100101: controls <= #`mydelay 4'b0001; // OR
+	      6'b001000: controls <= #`mydelay 4'b1000; // JR
+	      6'b101010,
+	      6'b101011: controls <= #`mydelay 4'b0111; // SLT, SLTU
+	      default:   controls <= #`mydelay 4'b0xxx; // ???
         endcase
     endcase
     
@@ -410,9 +416,9 @@ module datapath(input         clk, reset,
 
   mux2 #(32) JR_mux(
     .d0  (pcreturn),
-	 .d1  (srca),
-	 .s   (jumpR),
-	 .y   (pcnext));
+    .d1  (srca),
+    .s   (jumpR),
+    .y   (pcnext));
 
   // register file logic
   regfile rf(
@@ -428,18 +434,18 @@ module datapath(input         clk, reset,
   mux3 #(5) wrmux(
     .d0  (instr[20:16]),
     .d1  (instr[15:11]),
-	 .d2  (5'b11111),   /* ra register */
-	 .s1  (regdst),
-	 .s2  (linkra),
-	 .y   (writereg));
+    .d2  (5'b11111),   /* ra register */
+    .s1  (regdst),
+    .s2  (linkra),
+    .y   (writereg));
 
   mux3 #(32) resmux(
     .d0 (aluout),
-	 .d1 (readdata),
-	 .d2 (pcplus4),
-	 .s1 (memtoreg),
-	 .s2 (linkra),
-	 .y  (result));
+    .d1 (readdata),
+    .d2 (pcplus4),
+    .s1 (memtoreg),
+    .s2 (linkra),
+    .y  (result));
 	 
   sign_zero_ext sze(
     .a       (instr[15:0]),
